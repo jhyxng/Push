@@ -1930,37 +1930,27 @@
     }
   }
 
-  function daysSinceTimestamp(timestamp) {
-    const value = Number(timestamp || 0);
-    if (!value) return null;
+  function relativeWorkoutText(lastWorkoutAt) {
+    const value = Number(lastWorkoutAt || 0);
+    if (!value) return "no workout yet";
 
-    const last = new Date(value);
-    const now = new Date();
+    const diffMs = Date.now() - value;
+    if (diffMs < 60000) return "just now";
 
-    const lastDay = new Date(
-      last.getFullYear(),
-      last.getMonth(),
-      last.getDate()
-    ).getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
 
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    ).getTime();
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
 
-    return Math.max(0, Math.floor((today - lastDay) / 86400000));
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "1 day ago";
+    return `${diffDays} days ago`;
   }
 
   function workoutStatusText(member, working) {
     if (working) return "working out now";
-
-    const days = daysSinceTimestamp(member.lastWorkoutAt);
-
-    if (days === null) return "no workout yet";
-    if (days === 0) return "worked out today";
-    if (days === 1) return "1 day ago";
-    return `${days} days ago`;
+    return relativeWorkoutText(member.lastWorkoutAt);
   }
 
   function renderFriendRows(membersObject) {
