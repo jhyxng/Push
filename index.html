@@ -1649,6 +1649,7 @@
 
   const FIREBASE_SDK_VERSION = "12.17.1";
   const LIVE_PROFILE_KEY = "push.live.profile.v1";
+  const LOCAL_STATS_KEY = "push.stats.v2";
 
   let firebaseModules = null;
   let firebaseApp = null;
@@ -1661,6 +1662,8 @@
   let liveHeartbeatId = null;
   let liveMyRef = null;
   let liveSyncReady = false;
+  let serverStatsHydrated = false;
+  let dailyHistory = {};
   let sessionBaseToday = 0;
 
   function todayKey() {
@@ -1669,6 +1672,156 @@
     const m = String(now.getMonth() + 1).padStart(2, "0");
     const d = String(now.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
+  }
+
+  function dateKeyFromDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function cleanHistory(input) {
+    const result = {};
+    if (!input || typeof input !== "object") return result;
+
+    Object.entries(input).forEach(([key, value]) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+      const reps = Math.max(0, Math.floor(Number(value || 0)));
+      if (Number.isFinite(reps)) result[key] = reps;
+    });
+
+    return result;
+  }
+
+  function loadLocalStats() {
+    try {
+      const raw = localStorage.getItem(LOCAL_STATS_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return cleanHistory(parsed?.history || parsed);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function saveLocalStats() {
+    try {
+      localStorage.setItem(
+        LOCAL_STATS_KEY,
+        JSON.stringify({
+          history: dailyHistory,
+          savedAt: Date.now()
+        })
+      );
+    } catch (_) {}
+  }
+
+  function mondayFor(date) {
+    const result = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    const jsDay = result.getDay();
+    const mondayOffset = jsDay === 0 ? -6 : 1 - jsDay;
+    result.setDate(result.getDate() + mondayOffset);
+    return result;
+  }
+
+  function applyHistoryToHome() {
+    const now = new Date();
+    const today = todayKey();
+    const monday = mondayFor(now);
+
+    let weekTotal = 0;
+    let monthTotal = 0;
+    let yearTotal = 0;
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      const key = dateKeyFromDate(date);
+      const value = Number(dailyHistory[key] || 0);
+
+      weekValues[i] = value;
+      weekTotal += value;
+    }
+
+    const currentMonthPrefix =
+      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-`;
+    const currentYearPrefix = `${now.getFullYear()}-`;
+
+    Object.entries(dailyHistory).forEach(([key, value]) => {
+      const reps = Number(value || 0);
+      if (key.startsWith(currentMonthPrefix)) monthTotal += reps;
+      if (key.startsWith(currentYearPrefix)) yearTotal += reps;
+    });
+
+    todayCount.textContent = String(Number(dailyHistory[today] || 0));
+    weekCount.textContent = String(weekTotal);
+    monthCount.textContent = String(monthTotal);
+    yearCount.textContent = String(yearTotal);
+
+    syncWeekUI(false);
+  }
+
+  function setTodayHistory(reps, applyUI = true) {
+    const value = Math.max(0, Math.floor(Number(reps || 0)));
+    dailyHistory[todayKey()] = value;
+    saveLocalStats();
+
+    if (applyUI) {
+      applyHistoryToHome();
+    }
+  }
+
+  function mergeHistoryFromMember(member) {
+    const merged = {
+      ...dailyHistory,
+      ...cleanHistory(member?.history)
+    };
+
+    /* Compatibility with records written by the older app version. */
+    if (member?.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(member.dateKey)) {
+      const oldValue = Math.max(0, Math.floor(Number(member.todayReps || 0)));
+      merged[member.dateKey] = Math.max(
+        Number(merged[member.dateKey] || 0),
+        oldValue
+      );
+    }
+
+    /* Local storage is also a crash/background checkpoint.
+       Never replace a larger local count with a smaller stale server value. */
+    const local = loadLocalStats();
+    Object.entries(local).forEach(([key, value]) => {
+      merged[key] = Math.max(
+        Number(merged[key] || 0),
+        Number(value || 0)
+      );
+    });
+
+    dailyHistory = cleanHistory(merged);
+    saveLocalStats();
+    applyHistoryToHome();
+  }
+
+  function checkpointCurrentWorkout() {
+    if (!startedAt || isCountingDown) return;
+
+    const currentToday = sessionBaseToday + totalReps;
+    setTodayHistory(currentToday, false);
+
+    publishMyLiveState({
+      todayReps: currentToday,
+      ...(totalReps > 0
+        ? {
+            lastWorkoutAt: firebaseModules
+              ? firebaseModules.dbMod.serverTimestamp()
+              : Date.now()
+          }
+        : {})
+    });
   }
 
   function firebaseConfigReady() {
@@ -1753,8 +1906,21 @@
       firebaseAuth = authMod.getAuth(firebaseApp);
       firebaseDb = dbMod.getDatabase(firebaseApp);
 
-      const credential = await authMod.signInAnonymously(firebaseAuth);
-      liveUid = credential.user.uid;
+      /* Keep the same anonymous account after the standalone PWA is closed. */
+      await authMod.setPersistence(
+        firebaseAuth,
+        authMod.browserLocalPersistence
+      );
+
+      /* Wait until Firebase has restored the saved auth state before deciding
+         whether a new anonymous account is necessary. */
+      await firebaseAuth.authStateReady();
+
+      if (!firebaseAuth.currentUser) {
+        await authMod.signInAnonymously(firebaseAuth);
+      }
+
+      liveUid = firebaseAuth.currentUser.uid;
 
       return true;
     } catch (error) {
@@ -1892,6 +2058,20 @@
       ...overrides
     };
 
+    const explicitlyPublishingToday =
+      Object.prototype.hasOwnProperty.call(overrides, "todayReps");
+
+    if (explicitlyPublishingToday && serverStatsHydrated) {
+      const reps = Math.max(
+        0,
+        Math.floor(Number(payload.todayReps || 0))
+      );
+
+      payload[`history/${todayKey()}`] = reps;
+      dailyHistory[todayKey()] = reps;
+      saveLocalStats();
+    }
+
     try {
       await dbMod.update(liveMyRef, payload);
     } catch (error) {
@@ -1914,6 +2094,29 @@
     const membersRef = dbMod.ref(firebaseDb, "users");
     const connectedRef = dbMod.ref(firebaseDb, ".info/connected");
 
+    /* Critical ordering:
+       1. restore local checkpoint
+       2. read this user's existing Firebase record
+       3. hydrate the UI
+       4. only then allow presence/heartbeat writes
+       Older code did step 4 first and could overwrite a saved count with 0. */
+    dailyHistory = loadLocalStats();
+
+    try {
+      const mineSnapshot = await dbMod.get(liveMyRef);
+      const mine = mineSnapshot.val();
+
+      if (mine) {
+        mergeHistoryFromMember(mine);
+      } else {
+        applyHistoryToHome();
+      }
+    } catch (error) {
+      console.warn("Initial stats restore failed:", error);
+      applyHistoryToHome();
+    }
+
+    serverStatsHydrated = true;
     liveSyncReady = true;
 
     liveConnectedUnsubscribe = dbMod.onValue(connectedRef, async snapshot => {
@@ -1948,18 +2151,10 @@
 
       if (
         mine &&
-        mine.dateKey === todayKey() &&
         !startedAt &&
-        Number(mine.todayReps || 0) > Number(todayCount.textContent || 0)
+        !isCountingDown
       ) {
-        const serverToday = Number(mine.todayReps || 0);
-
-        todayCount.textContent = String(serverToday);
-        weekCount.textContent = String(serverToday);
-        monthCount.textContent = String(serverToday);
-        yearCount.textContent = String(serverToday);
-        weekValues[todayIndex] = serverToday;
-        syncWeekUI(false);
+        mergeHistoryFromMember(mine);
       }
     });
 
@@ -1975,7 +2170,8 @@
 
     await publishMyLiveState({
       connected: true,
-      isWorkingOut: false
+      isWorkingOut: false,
+      todayReps: Number(dailyHistory[todayKey()] || 0)
     });
 
     friendsSub.textContent = "live";
@@ -2897,6 +3093,9 @@
     totalReps += 1;
     sets[setIndex] += 1;
 
+    /* Synchronous local checkpoint: survives app background/termination. */
+    setTodayHistory(sessionBaseToday + totalReps, false);
+
     animateRepTo(sets[setIndex]);
     totalCount.textContent = String(totalReps);
 
@@ -3013,6 +3212,8 @@
       setChips.appendChild(chip);
     });
 
+    setTodayHistory(sessionBaseToday + totalReps, true);
+
     publishMyLiveState({
       isWorkingOut: false,
       todayReps: sessionBaseToday + totalReps,
@@ -3032,14 +3233,10 @@
     if (sessionCommitted) return;
     sessionCommitted = true;
 
-    const updatedToday = (Number(todayCount.textContent) || 0) + totalReps;
+    const updatedToday = sessionBaseToday + totalReps;
 
-    todayCount.textContent = String(updatedToday);
-    monthCount.textContent = String((Number(monthCount.textContent) || 0) + totalReps);
-    yearCount.textContent = String((Number(yearCount.textContent) || 0) + totalReps);
-
-    weekValues[todayIndex] += totalReps;
-    weekCount.textContent = String(weekValues.reduce((sum, value) => sum + value, 0));
+    setTodayHistory(updatedToday, false);
+    applyHistoryToHome();
 
     /* One interpolated Y-array drives BOTH dots and the path. */
     syncWeekUI(true);
@@ -3084,6 +3281,8 @@
     isCountingDown = false;
     faceCalibrationReady = false;
     countdownFrame.classList.add("face-waiting");
+    setTodayHistory(sessionBaseToday, true);
+
     publishMyLiveState({
       isWorkingOut: false,
       todayReps: sessionBaseToday
@@ -3124,9 +3323,20 @@
   doneBtn.addEventListener("click", doneWorkout);
   againBtn.addEventListener("click", startAnother);
 
-  syncWeekUI(false);
+  dailyHistory = loadLocalStats();
+  applyHistoryToHome();
   setInitialView("home");
   initLiveSync();
+
+  /* iOS may suspend/kill a standalone PWA quickly in the background.
+     Keep a synchronous local checkpoint before that can happen. */
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      checkpointCurrentWorkout();
+    }
+  });
+
+  window.addEventListener("pagehide", checkpointCurrentWorkout);
 })();
 </script>
 
