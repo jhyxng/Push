@@ -1271,7 +1271,7 @@
           <div class="day"><div class="pill week-pill">0</div><div class="day-name">S</div></div>
         </div>
 
-        <div class="chart-wrap" aria-label="요일별 푸시업 추이">
+        <div class="chart-wrap" aria-label="daily push-up trend">
           <svg viewBox="0 0 350 72" preserveAspectRatio="none">
             <path id="weekLine" class="chart-line" d="M18 56 L70 56 L122 56 L174 56 L226 56 L278 56 L330 56"/>
             <circle class="chart-dot graph-dot-item" cx="18" cy="56" r="3"/>
@@ -1294,9 +1294,9 @@
         <div id="friendsList">
           <div class="friend">
             <div class="friend-left">
-              <div class="avatar">MJ</div>
+              <div class="avatar">AL</div>
               <div>
-                <div class="friend-name">민준</div>
+                <div class="friend-name">Alex</div>
                 <div class="friend-meta">no workout yet</div>
               </div>
             </div>
@@ -1305,9 +1305,9 @@
 
           <div class="friend">
             <div class="friend-left">
-              <div class="avatar">JH</div>
+              <div class="avatar">JD</div>
               <div>
-                <div class="friend-name">지훈</div>
+                <div class="friend-name">Jordan</div>
                 <div class="friend-meta">no workout yet</div>
               </div>
             </div>
@@ -1316,9 +1316,9 @@
 
           <div class="friend">
             <div class="friend-left">
-              <div class="avatar">SJ</div>
+              <div class="avatar">SM</div>
               <div>
-                <div class="friend-name">서준</div>
+                <div class="friend-name">Sam</div>
                 <div class="friend-meta">no workout yet</div>
               </div>
             </div>
@@ -1347,14 +1347,14 @@
           <span id="trackingText">tracking ready</span>
         </div>
 
-        <button class="cancel-btn" id="cancelBtn" type="button" aria-label="운동 취소">
+        <button class="cancel-btn" id="cancelBtn" type="button" aria-label="cancel workout">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
             <path d="m7 7 10 10M17 7 7 17"/>
           </svg>
         </button>
       </header>
 
-      <button class="counter-area" id="counterBtn" type="button" aria-label="푸시업 1회 테스트 입력">
+      <button class="counter-area" id="counterBtn" type="button" aria-label="log one push-up manually">
         <div class="workout-counter-content" id="workoutCounterContent">
           <div class="set-label" id="setLabel">SET 1</div>
           <div class="rep-frame" id="repFrame" aria-live="polite">
@@ -1400,11 +1400,11 @@
           NEW SET
         </button>
 
-        <button class="round-control" id="pauseBtn" type="button" aria-label="일시정지">
+        <button class="round-control" id="pauseBtn" type="button" aria-label="pause">
           <div class="pause-bars" id="pauseIcon"><i></i><i></i></div>
         </button>
 
-        <button class="round-control end" id="finishBtn" type="button" aria-label="운동 종료">
+        <button class="round-control end" id="finishBtn" type="button" aria-label="end workout">
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
             <path d="m7 7 10 10M17 7 7 17"/>
           </svg>
@@ -1491,7 +1491,7 @@
       <div class="live-sheet-kicker">live friends</div>
       <div class="live-sheet-title">join live.</div>
       <div class="live-sheet-copy">
-        서버에 접속한 사람들은 자동으로 서로의 오늘 푸시업 수와 운동 중 상태를 볼 수 있어.
+        Everyone connected can automatically see each other's push-up count and workout status for today.
       </div>
 
       <div class="live-fields">
@@ -1595,11 +1595,11 @@
   let countdownToken = 0;
   let sessionCommitted = false;
   let graphAnimationToken = 0;
+  let workoutStarting = false;
 
   /* No visual queue. The actual count is always the target.
      CSS transitions continuously retarget the digit tracks from their current
      interpolated position, so rapid input accelerates the existing motion. */
-  const digitStates = new Map();
   let lastRepMotionAt = 0;
   let countdownIndex = 0;
 
@@ -1989,7 +1989,7 @@
     if (!members.length) {
       const empty = document.createElement("div");
       empty.className = "friends-empty";
-      empty.textContent = "아직 랭킹 데이터가 없어";
+      empty.textContent = "No ranking data yet";
       friendsList.appendChild(empty);
       return;
     }
@@ -2195,7 +2195,7 @@
     const name = liveNameInput.value.trim().slice(0, 16);
 
     if (!name) {
-      liveSetupStatus.textContent = "이름을 입력해";
+      liveSetupStatus.textContent = "Enter a name";
       return;
     }
 
@@ -2367,7 +2367,6 @@
 
       column.classList.toggle("hidden-digit", !shouldShow);
       setDigitTrackPosition(column, step, duration, instant);
-      digitStates.set(place, step);
     });
 
     repOdometer.setAttribute("aria-label", String(numericValue));
@@ -3297,7 +3296,14 @@
     event.preventDefault();
   }, { passive:false });
 
-  startBtn.addEventListener("click", beginAfterCountdown);
+  startBtn.addEventListener("click", () => {
+    /* Guards the brief window before start-dock's pointer-events:none
+       takes effect, in case two taps land in the same event tick. */
+    if (workoutStarting) return;
+    workoutStarting = true;
+    beginAfterCountdown();
+    workoutStarting = false;
+  });
   counterBtn.addEventListener("pointerup", event => {
     if (event.pointerType === "touch") {
       event.preventDefault();
