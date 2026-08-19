@@ -1287,8 +1287,8 @@
 
       <section class="card friends-card">
         <div class="friends-head">
-          <div class="section-title">friends today</div>
-          <div class="friends-sub" id="friendsSub">3 friends</div>
+          <div class="section-title">ranking</div>
+          <div class="friends-sub" id="friendsSub">today</div>
         </div>
 
         <div id="friendsList">
@@ -1967,7 +1967,6 @@
     if (!liveSyncReady || !liveUid) return;
 
     const members = Object.entries(membersObject || {})
-      .filter(([uid]) => uid !== liveUid)
       .map(([uid, member]) => {
         const sameDay = member?.dateKey === todayKey();
 
@@ -1981,22 +1980,16 @@
           lastWorkoutAt: Number(member?.lastWorkoutAt || 0)
         };
       })
-      .sort((a, b) => {
-        const aw = a.connected && a.isWorkingOut ? 1 : 0;
-        const bw = b.connected && b.isWorkingOut ? 1 : 0;
-        if (aw !== bw) return bw - aw;
-        return b.todayReps - a.todayReps;
-      });
+      .sort((a, b) => b.todayReps - a.todayReps);
 
-    friendsSub.textContent =
-      `${members.length} friend${members.length === 1 ? "" : "s"}`;
+    friendsSub.textContent = "today";
 
     friendsList.innerHTML = "";
 
     if (!members.length) {
       const empty = document.createElement("div");
       empty.className = "friends-empty";
-      empty.textContent = "아직 서버에 접속한 다른 사용자가 없어";
+      empty.textContent = "아직 랭킹 데이터가 없어";
       friendsList.appendChild(empty);
       return;
     }
