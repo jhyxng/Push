@@ -441,292 +441,6 @@
       font-weight:650;
     }
 
-    /* RANKING PROFILE MODAL ---------------------------------------- */
-
-    .friend-left.profile-trigger{
-      cursor:pointer;
-      border-radius:12px;
-      outline:none;
-    }
-
-    .friend-left.profile-trigger:active{
-      opacity:.72;
-    }
-
-    .profile-modal{
-      position:fixed;
-      z-index:60;
-      inset:0;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-      padding:
-        calc(var(--safe-top) + 8px)
-        10px
-        calc(var(--safe-bottom) + 8px);
-      background:rgba(0,0,0,.54);
-      backdrop-filter:blur(12px);
-      -webkit-backdrop-filter:blur(12px);
-      opacity:0;
-      visibility:hidden;
-      pointer-events:none;
-      transition:
-        opacity 520ms var(--ease),
-        visibility 0s linear 520ms;
-    }
-
-    .profile-modal.visible{
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-      transition:
-        opacity 520ms var(--ease),
-        visibility 0s;
-    }
-
-    .profile-backdrop{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-    }
-
-    .profile-sheet{
-      position:relative;
-      z-index:1;
-      width:100%;
-      max-width:430px;
-      height:min(880px,calc(100dvh - var(--safe-top) - var(--safe-bottom) - 26px));
-      overflow-y:auto;
-      overflow-x:hidden;
-      -webkit-overflow-scrolling:touch;
-      overscroll-behavior:contain;
-      scrollbar-width:none;
-      padding:18px 14px 18px;
-      border-radius:28px;
-      background:#0d0d0f;
-      border:1px solid rgba(255,255,255,.055);
-      box-shadow:0 24px 70px rgba(0,0,0,.46);
-      transform:translate3d(0,38px,0) scale(.992);
-      opacity:.98;
-      transition:
-        transform 760ms var(--ease-out),
-        opacity 520ms var(--ease);
-      will-change:transform,opacity;
-    }
-
-    .profile-sheet::-webkit-scrollbar{ display:none; }
-
-    .profile-modal.visible .profile-sheet{
-      transform:translate3d(0,0,0) scale(1);
-      opacity:1;
-    }
-
-    .profile-top{
-      min-height:46px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      padding:2px 2px 12px;
-    }
-
-    .profile-kicker{
-      color:#5d5d64;
-      font-size:9px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-    }
-
-    .profile-title{
-      margin:4px 0 0;
-      max-width:290px;
-      color:#f5f5f7;
-      font-size:24px;
-      line-height:1.08;
-      font-weight:760;
-      letter-spacing:-1px;
-      word-break:break-word;
-    }
-
-    .profile-close{
-      width:36px;
-      height:36px;
-      flex:0 0 auto;
-      display:grid;
-      place-items:center;
-      border-radius:50%;
-      background:#18181a;
-      color:#b8b8bd;
-    }
-
-    .profile-close:active{
-      transform:scale(.94);
-    }
-
-    .profile-close svg{
-      width:17px;
-      height:17px;
-    }
-
-    .profile-hero-card,
-    .profile-week-card{
-      overflow:hidden;
-      border-radius:22px;
-      background:#101012;
-      border:1px solid rgba(255,255,255,.035);
-    }
-
-    .profile-hero-main{
-      min-height:174px;
-      padding:20px 20px 18px;
-      display:flex;
-      align-items:center;
-      gap:16px;
-    }
-
-    .profile-today-number{
-      flex:0 0 auto;
-      font-size:80px;
-      line-height:.8;
-      font-weight:790;
-      letter-spacing:-6px;
-      font-variant-numeric:tabular-nums;
-    }
-
-    .profile-today-copy{
-      font-size:22px;
-      line-height:.98;
-      font-weight:760;
-      letter-spacing:-.8px;
-    }
-
-    .profile-stats{
-      min-height:76px;
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      align-items:center;
-      text-align:center;
-      background:#131315;
-      border-top:1px solid rgba(255,255,255,.04);
-    }
-
-    .profile-stat strong{
-      display:block;
-      color:#9a9aa1;
-      font-size:26px;
-      line-height:1;
-      font-weight:740;
-      letter-spacing:-1px;
-      font-variant-numeric:tabular-nums;
-    }
-
-    .profile-stat span{
-      display:block;
-      margin-top:6px;
-      color:#595960;
-      font-size:10px;
-      font-weight:670;
-    }
-
-    .profile-week-card{
-      margin-top:12px;
-      padding:18px 14px 14px;
-    }
-
-    .profile-week-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:18px;
-      padding:0 2px;
-    }
-
-    .profile-week-title{
-      font-size:22px;
-      font-weight:760;
-      letter-spacing:-.8px;
-    }
-
-    .profile-status{
-      color:#5c5c63;
-      font-size:10px;
-      font-weight:650;
-      text-align:right;
-    }
-
-    .profile-days{
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:6px;
-    }
-
-    .profile-day{
-      min-width:0;
-      text-align:center;
-    }
-
-    .profile-pill{
-      height:52px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:27px;
-      background:#121214;
-      color:#65656c;
-      font-size:17px;
-      font-weight:730;
-      font-variant-numeric:tabular-nums;
-    }
-
-    .profile-pill.today{
-      border:1px solid rgba(255,255,255,.18);
-      color:#a1a1a8;
-    }
-
-    .profile-day-name{
-      margin-top:7px;
-      color:#55555c;
-      font-size:9px;
-      font-weight:720;
-    }
-
-    .profile-chart{
-      position:relative;
-      height:150px;
-      margin-top:18px;
-    }
-
-    .profile-chart::after{
-      content:"";
-      position:absolute;
-      left:4px;
-      right:4px;
-      bottom:20px;
-      height:1px;
-      background:rgba(255,255,255,.055);
-    }
-
-    .profile-chart svg{
-      width:100%;
-      height:100%;
-      display:block;
-      overflow:visible;
-    }
-
-    .profile-chart-line{
-      fill:none;
-      stroke:rgba(255,255,255,.30);
-      stroke-width:2;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-    }
-
-    .profile-chart-dot{
-      fill:#5a5a61;
-    }
-
     .start-dock{
       position:fixed;
       z-index:8;
@@ -1771,81 +1485,6 @@
 
 </div>
 
-  <div class="profile-modal" id="profileModal" aria-hidden="true">
-    <button class="profile-backdrop" id="profileBackdrop" type="button" aria-label="close profile"></button>
-
-    <section class="profile-sheet" id="profileSheet" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
-      <header class="profile-top">
-        <div>
-          <div class="profile-kicker">ranking profile</div>
-          <h2 class="profile-title" id="profileTitle">전적</h2>
-        </div>
-
-        <button class="profile-close" id="profileClose" type="button" aria-label="close profile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-            <path d="m7 7 10 10M17 7 7 17"/>
-          </svg>
-        </button>
-      </header>
-
-      <section class="profile-hero-card">
-        <div class="profile-hero-main">
-          <div class="profile-today-number" id="profileToday">0</div>
-          <div class="profile-today-copy">push-ups<br>today</div>
-        </div>
-
-        <div class="profile-stats">
-          <div class="profile-stat">
-            <strong id="profileWeek">0</strong>
-            <span>this week</span>
-          </div>
-          <div class="profile-stat">
-            <strong id="profileMonth">0</strong>
-            <span>this month</span>
-          </div>
-          <div class="profile-stat">
-            <strong id="profileYear">0</strong>
-            <span>this year</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="profile-week-card">
-        <div class="profile-week-head">
-          <div class="profile-week-title">this week</div>
-          <div class="profile-status" id="profileStatus">no workout yet</div>
-        </div>
-
-        <div class="profile-days" id="profileDays">
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">M</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">T</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">W</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">T</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">F</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">S</div></div>
-          <div class="profile-day"><div class="profile-pill">0</div><div class="profile-day-name">S</div></div>
-        </div>
-
-        <div class="profile-chart" aria-label="friend weekly push-up trend">
-          <svg viewBox="0 0 350 150" preserveAspectRatio="none">
-            <path
-              id="profileWeekLine"
-              class="profile-chart-line"
-              d="M18 126 L70 126 L122 126 L174 126 L226 126 L278 126 L330 126"
-            />
-            <circle class="profile-chart-dot profile-graph-dot" cx="18" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="70" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="122" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="174" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="226" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="278" cy="126" r="3.5"/>
-            <circle class="profile-chart-dot profile-graph-dot" cx="330" cy="126" r="3.5"/>
-          </svg>
-        </div>
-      </section>
-    </section>
-  </div>
-
 
   <div class="live-setup" id="liveSetup" aria-hidden="true">
     <div class="live-sheet">
@@ -1913,20 +1552,6 @@
 
   const friendsList = document.getElementById("friendsList");
   const friendsSub = document.getElementById("friendsSub");
-
-  const profileModal = document.getElementById("profileModal");
-  const profileBackdrop = document.getElementById("profileBackdrop");
-  const profileSheet = document.getElementById("profileSheet");
-  const profileClose = document.getElementById("profileClose");
-  const profileTitle = document.getElementById("profileTitle");
-  const profileToday = document.getElementById("profileToday");
-  const profileWeek = document.getElementById("profileWeek");
-  const profileMonth = document.getElementById("profileMonth");
-  const profileYear = document.getElementById("profileYear");
-  const profileStatus = document.getElementById("profileStatus");
-  const profilePills = Array.from(document.querySelectorAll(".profile-pill"));
-  const profileGraphDots = Array.from(document.querySelectorAll(".profile-graph-dot"));
-  const profileWeekLine = document.getElementById("profileWeekLine");
 
   const liveSetup = document.getElementById("liveSetup");
   const liveNameInput = document.getElementById("liveNameInput");
@@ -2040,9 +1665,6 @@
   let serverStatsHydrated = false;
   let dailyHistory = {};
   let sessionBaseToday = 0;
-  let latestMembersObject = {};
-  let openProfileUid = null;
-  let relativeTimeRefreshId = null;
 
   function todayKey() {
     const now = new Date();
@@ -2312,9 +1934,7 @@
     const value = Number(lastWorkoutAt || 0);
     if (!value) return "no workout yet";
 
-    /* Server/client clocks can differ slightly. Never let a future server
-       timestamp fall into a wrong day-based status. */
-    const diffMs = Math.max(0, Date.now() - value);
+    const diffMs = Date.now() - value;
     if (diffMs < 60000) return "just now";
 
     const diffMinutes = Math.floor(diffMs / 60000);
@@ -2333,146 +1953,8 @@
     return relativeWorkoutText(member.lastWorkoutAt);
   }
 
-  function memberHistory(member) {
-    const history = cleanHistory(member?.history);
-
-    /* Older records may only have dateKey + todayReps. Fold that into the
-       history used by the profile without changing the stored Firebase shape. */
-    if (member?.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(member.dateKey)) {
-      const reps = Math.max(0, Math.floor(Number(member.todayReps || 0)));
-      history[member.dateKey] = Math.max(
-        Number(history[member.dateKey] || 0),
-        reps
-      );
-    }
-
-    return history;
-  }
-
-  function profileStatsFromHistory(history) {
-    const now = new Date();
-    const monday = mondayFor(now);
-    const today = todayKey();
-    const weekValuesForProfile = [];
-    let weekTotal = 0;
-    let monthTotal = 0;
-    let yearTotal = 0;
-
-    for (let i = 0; i < 7; i += 1) {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + i);
-      const value = Number(history[dateKeyFromDate(date)] || 0);
-      weekValuesForProfile.push(value);
-      weekTotal += value;
-    }
-
-    const monthPrefix =
-      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-`;
-    const yearPrefix = `${now.getFullYear()}-`;
-
-    Object.entries(history).forEach(([key, value]) => {
-      const reps = Number(value || 0);
-      if (key.startsWith(monthPrefix)) monthTotal += reps;
-      if (key.startsWith(yearPrefix)) yearTotal += reps;
-    });
-
-    return {
-      today: Number(history[today] || 0),
-      week: weekTotal,
-      month: monthTotal,
-      year: yearTotal,
-      weekValues: weekValuesForProfile
-    };
-  }
-
-  function drawProfileGraph(values) {
-    const x = [18, 70, 122, 174, 226, 278, 330];
-    const maxValue = Math.max(1, ...values) * 1.10;
-
-    const ys = values.map(value => {
-      if (value <= 0) return 126;
-      const normalized = Math.max(0, Math.min(1, value / maxValue));
-      return 126 - normalized * 88;
-    });
-
-    profileGraphDots.forEach((dot, index) => {
-      dot.setAttribute("cy", ys[index].toFixed(2));
-    });
-
-    profileWeekLine.setAttribute(
-      "d",
-      ys.map((y, index) => {
-        return (index === 0 ? "M" : "L") + x[index] + " " + y.toFixed(2);
-      }).join(" ")
-    );
-  }
-
-  function renderFriendProfile(member) {
-    if (!member) return;
-
-    const history = memberHistory(member);
-    const stats = profileStatsFromHistory(history);
-    const working = member.connected && member.isWorkingOut;
-
-    profileTitle.textContent = `${member.name}님의 전적`;
-    profileToday.textContent = String(stats.today);
-    profileWeek.textContent = String(stats.week);
-    profileMonth.textContent = String(stats.month);
-    profileYear.textContent = String(stats.year);
-    profileStatus.textContent = workoutStatusText(member, working);
-
-    profilePills.forEach((pill, index) => {
-      pill.textContent = String(stats.weekValues[index]);
-      pill.classList.toggle("today", index === todayIndex);
-    });
-
-    drawProfileGraph(stats.weekValues);
-  }
-
-  function openFriendProfile(member) {
-    openProfileUid = member.uid;
-    renderFriendProfile(member);
-    profileSheet.scrollTop = 0;
-    profileModal.classList.add("visible");
-    profileModal.setAttribute("aria-hidden", "false");
-  }
-
-  function closeFriendProfile() {
-    openProfileUid = null;
-    profileModal.classList.remove("visible");
-    profileModal.setAttribute("aria-hidden", "true");
-  }
-
-  function refreshRelativeWorkoutTimes() {
-    document.querySelectorAll(".friend-meta[data-last-workout-at]").forEach(meta => {
-      const working = meta.dataset.working === "1";
-
-      meta.textContent = working
-        ? "working out now"
-        : relativeWorkoutText(Number(meta.dataset.lastWorkoutAt || 0));
-    });
-
-    if (openProfileUid && latestMembersObject[openProfileUid]) {
-      const raw = latestMembersObject[openProfileUid];
-      const member = {
-        uid: openProfileUid,
-        name: String(raw?.name || "friend"),
-        initials: String(raw?.initials || initialsFromName(raw?.name)),
-        todayReps: raw?.dateKey === todayKey() ? Number(raw?.todayReps || 0) : 0,
-        connected: Boolean(raw?.connected),
-        isWorkingOut: Boolean(raw?.isWorkingOut),
-        lastWorkoutAt: Number(raw?.lastWorkoutAt || 0),
-        history: memberHistory(raw)
-      };
-
-      renderFriendProfile(member);
-    }
-  }
-
   function renderFriendRows(membersObject) {
     if (!liveSyncReady || !liveUid) return;
-
-    latestMembersObject = membersObject || {};
 
     const members = Object.entries(membersObject || {})
       .map(([uid, member]) => {
@@ -2485,8 +1967,7 @@
           todayReps: sameDay ? Number(member?.todayReps || 0) : 0,
           connected: Boolean(member?.connected),
           isWorkingOut: Boolean(member?.isWorkingOut),
-          lastWorkoutAt: Number(member?.lastWorkoutAt || 0),
-          history: memberHistory(member)
+          lastWorkoutAt: Number(member?.lastWorkoutAt || 0)
         };
       })
       .sort((a, b) => b.todayReps - a.todayReps);
@@ -2510,21 +1991,7 @@
       row.className = "friend";
 
       const left = document.createElement("div");
-      left.className = "friend-left profile-trigger";
-      left.setAttribute("role", "button");
-      left.setAttribute("tabindex", "0");
-      left.setAttribute("aria-label", `${member.name}님의 전적 보기`);
-
-      left.addEventListener("click", () => {
-        openFriendProfile(member);
-      });
-
-      left.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openFriendProfile(member);
-        }
-      });
+      left.className = "friend-left";
 
       const avatar = document.createElement("div");
       avatar.className = "avatar" + (working ? " working" : "");
@@ -2538,8 +2005,6 @@
 
       const meta = document.createElement("div");
       meta.className = "friend-meta" + (working ? " working" : "");
-      meta.dataset.lastWorkoutAt = String(member.lastWorkoutAt || 0);
-      meta.dataset.working = working ? "1" : "0";
       meta.textContent = workoutStatusText(member, working);
 
       info.append(name, meta);
@@ -2558,16 +2023,6 @@
       row.append(left, reps);
       friendsList.appendChild(row);
     });
-
-    if (openProfileUid) {
-      const activeMember = members.find(member => member.uid === openProfileUid);
-
-      if (activeMember) {
-        renderFriendProfile(activeMember);
-      } else {
-        closeFriendProfile();
-      }
-    }
   }
 
   async function publishMyLiveState(overrides = {}) {
@@ -3857,9 +3312,6 @@
   doneBtn.addEventListener("click", doneWorkout);
   againBtn.addEventListener("click", startAnother);
 
-  profileClose.addEventListener("click", closeFriendProfile);
-  profileBackdrop.addEventListener("click", closeFriendProfile);
-
   dailyHistory = loadLocalStats();
   applyHistoryToHome();
   setInitialView("home");
@@ -3867,15 +3319,9 @@
 
   /* iOS may suspend/kill a standalone PWA quickly in the background.
      Keep a synchronous local checkpoint before that can happen. */
-  relativeTimeRefreshId = setInterval(refreshRelativeWorkoutTimes, 15000);
-
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       checkpointCurrentWorkout();
-    } else {
-      /* Recalculate from lastWorkoutAt immediately when returning to the app,
-         instead of leaving an old day-level label on screen. */
-      refreshRelativeWorkoutTimes();
     }
   });
 
